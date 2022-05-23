@@ -8,8 +8,9 @@ Source: "yamlconfig.dll"; Flags: dontcopy
 Source: "example.yaml"; DestDir: "{tmp}"; Flags: dontcopy
 
 [Code]
-type
-  PWideChar = Cardinal;
+const
+  CP_ACP = 0;
+  CP_UTF8 = 65001;
 
 function YAMLReadString(AFileName, APath, ADefault: AnsiString): PAnsiChar;
 	external 'YAMLReadString@files:yamlconfig.dll cdecl';
@@ -20,7 +21,16 @@ function MultiByteToWideChar(
     lpWideCharStr: string; cchWideChar: Integer): Integer;
   external 'MultiByteToWideChar@kernel32.dll stdcall';  
 
-procedure AddToRTF(var Res: String; FuncName: String; Path: String; Value: AnsiString; Ok: Boolean);
+function ANSIToUTF8(Str:AnsiString):String;
+var 
+  Len:Integer;
+begin
+   Len := MultiByteToWideChar(CP_UTF8, 0, Str, Length(Str), Result, 0);
+   SetLength(Result, Len);
+   MultiByteToWideChar(CP_UTF8, 0, Str, Length(Str), Result, Len);
+end;
+
+procedure AddToRTF(var Res: String; FuncName: String; Path: String; Value: String; Ok: Boolean);
 begin
 	if Ok then
 		Res := Res + Format('{\i %s}: {\b %s} = {\cf1 %s}\line', [FuncName, Path, Value])
@@ -47,12 +57,12 @@ begin
 	rtf := '{\rtf1{\colortbl;\red0\green0\blue255;\red255\green0\blue0;}';
 
 	strVal := YAMLReadString(fileName, 'foo.str', 'default');
-	AddToRTF(rtf, 'YAMLReadString', 'foo.str', strVal, True);
+	AddToRTF(rtf, 'YAMLReadString', 'foo.str', ANSIToUTF8(strVal), True);
 
 	//rtf := rtf + '\line' + #13#10;
 
   strVal := YAMLReadString('жулик.txt', 'anything', 'default');
-	AddToRTF(rtf, 'YAMLReadString', 'foo.str', strVal, True);
+	AddToRTF(rtf, 'YAMLReadString', 'foo.str', ANSIToUTF8(strVal), True);
 
 	rtf := rtf + '\line' + #13#10;
 
