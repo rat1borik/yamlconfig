@@ -1,0 +1,11 @@
+str: "Hello"
+
+int: 1
+
+foo:
+  str: "гыыы"
+  int: 2
+  bool: true
+
+bar:
+  bool: false
