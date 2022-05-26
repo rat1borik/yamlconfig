@@ -1,4 +1,4 @@
-https://stackoverflow.com/questions/40573401/building-a-dll-with-go-1-7
+# yamlconfig
 
 1. Make sure you have MinGW installed on Ubuntu:
 
@@ -14,5 +14,5 @@ https://stackoverflow.com/questions/40573401/building-a-dll-with-go-1-7
 
 2. Compile using the following command:
    ```
-   GOOS=windows GOARCH=386 CGO_ENABLED=1 CC=i686-w64-mingw32-gcc go build -buildmode=c-shared -o yamlconfig.dll yamlconfig.go
+   GOOS=windows GOARCH=386 CGO_ENABLED=1 CC=i686-w64-mingw32-gcc go build -ldflags="-s -w" -buildmode=c-shared -o yamlconfig.dll yamlconfig.go
    ```

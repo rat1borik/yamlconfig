@@ -9,25 +9,23 @@ Source: "example.yaml"; DestDir: "{tmp}"; Flags: dontcopy
 
 [Code]
 const
-  CP_ACP = 0;
-  CP_UTF8 = 65001;
+	CP_ACP = 0;
+	CP_UTF8 = 65001;
 
 function YAMLReadString(AFileName, APath, ADefault: AnsiString): PAnsiChar;
 	external 'YAMLReadString@files:yamlconfig.dll cdecl';
-function YAMLWriteString(AFileName, APath, AValue:AnsiString): Integer;
+function YAMLWriteString(AFileName, APath, AValue: AnsiString): Integer;
 	external 'YAMLWriteString@files:yamlconfig.dll cdecl';
-function MultiByteToWideChar(
-    CodePage: UINT; dwFlags: DWORD; const lpMultiByteStr: AnsiString; cchMultiByte: Integer; 
-    lpWideCharStr: string; cchWideChar: Integer): Integer;
-  external 'MultiByteToWideChar@kernel32.dll stdcall';  
+function MultiByteToWideChar(CodePage: UINT; dwFlags: DWORD; const lpMultiByteStr: AnsiString; cchMultiByte: Integer; lpWideCharStr: string; cchWideChar: Integer): Integer;
+	external 'MultiByteToWideChar@kernel32.dll stdcall';
 
-function ANSIToUTF8(Str:AnsiString):String;
+function ANSIToUTF8(Str: AnsiString): String;
 var 
-  Len:Integer;
+	Len: Integer;
 begin
-   Len := MultiByteToWideChar(CP_UTF8, 0, Str, Length(Str), Result, 0);
-   SetLength(Result, Len);
-   MultiByteToWideChar(CP_UTF8, 0, Str, Length(Str), Result, Len);
+	Len := MultiByteToWideChar(CP_UTF8, 0, Str, Length(Str), Result, 0);
+	SetLength(Result, Len);
+	MultiByteToWideChar(CP_UTF8, 0, Str, Length(Str), Result, Len);
 end;
 
 procedure AddToRTF(var Res: String; FuncName: String; Path: String; Value: String; Ok: Boolean);
@@ -56,21 +54,17 @@ begin
 
 	rtf := '{\rtf1{\colortbl;\red0\green0\blue255;\red255\green0\blue0;}';
 
+	// Test read
 	strVal := YAMLReadString(fileName, 'foo.str', 'default');
-	AddToRTF(rtf, 'YAMLReadString', 'foo.str', ANSIToUTF8(strVal), True);
-
-	//rtf := rtf + '\line' + #13#10;
-
-  strVal := YAMLReadString('жулик.txt', 'anything', 'default');
 	AddToRTF(rtf, 'YAMLReadString', 'foo.str', ANSIToUTF8(strVal), True);
 
 	rtf := rtf + '\line' + #13#10;
 
-	// Write
-	if YAMLWriteString(fileName, 'iss', 'InnoSetup')=0 {and YAMLReadString(fileName, 'foo.str', 'default', strVal, strLen)} then
-		AddToRTF(rtf, 'YAMLWriteString', 'foo.str', {Copy(strVal, 1, strLen)}'ok', True)	
+	// Test write
+	if YAMLWriteString(fileName, 'iss', 'InnoSetup') = 0 then
+		AddToRTF(rtf, 'YAMLWriteString', 'iss', 'ok', True)
 	else
-		AddToRTF(rtf, 'YAMLWriteString', 'foo.str', 'failed', False);
+		AddToRTF(rtf, 'YAMLWriteString', 'iss', 'failed', False);
 
 	rtf := rtf + '}';
 
